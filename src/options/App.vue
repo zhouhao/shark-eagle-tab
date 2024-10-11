@@ -2,7 +2,7 @@
   <div class="container">
     <main>
       <div class="py-5 text-center">
-        <img class="d-block mx-auto mb-4" src="/icons/icon.png" alt="" width="72" />
+        <img class="d-block mx-auto mb-4" src="/icons/icon.png" alt="" width="128px" />
         <h2>请直视我睿智的眼神</h2>
         <p class="lead">Please gaze into my wise eye</p>
       </div>
@@ -25,7 +25,7 @@
             >
               <div class="d-flex w-100 align-items-center justify-content-between">
                 <strong class="mb-1">{{ group }}</strong>
-                <small><img :src="getImgSrc(group)" alt="favicon"/></small>
+                <small><img :src="getImgSrc(group)" alt="favicon" width="20px"/></small>
               </div>
               <div class="col-10 mb-1 small">
                 Url Count: {{ tabGroupUrlMap.get(group).length }} / Total View Count:
@@ -37,7 +37,7 @@
         <div class="col-md-7 col-lg-8">
           <div class="card">
             <div class="card-header">
-              Links for Group: {{ currentGroup }}
+              Links for Group: <b>{{ currentGroup }}</b>
               <div class="btn-group float-end">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                   {{ sortMap.get(sortMethod) }}
@@ -132,6 +132,9 @@ export default {
       return Array.from(groups).sort((a, b) => this.tabGroupViewCountMap.get(b) - this.tabGroupViewCountMap.get(a));
     },
     getImgSrc(host) {
+      if (host === DEFAULT_GROUP_KEY) {
+        return '/icons/icon.png';
+      }
       return 'https://s2.googleusercontent.com/s2/favicons?domain=' + host;
     },
     deleteNote(url) {
