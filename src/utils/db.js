@@ -3,14 +3,18 @@ import PouchDBFind from 'pouchdb-find';
 import { genId, getCurrentTimestampInMs } from './base';
 
 PouchDB.plugin(PouchDBFind);
-const db = new PouchDB('metanote');
+const db = new PouchDB('shark-eagle-tab');
 db.createIndex({
-  index: { fields: ['url'] },
+  index: { fields: ['host'] },
 });
 
-const idPrefix = 'meta';
+db.createIndex({
+  index: { fields: ['title'] },
+});
 
-export const fetchAllMyNotes = keyword => {
+const idPrefix = 'tab';
+
+export const fetchAllMyUrls = keyword => {
   return new Promise((resolve, reject) => {
     db.allDocs({ include_docs: true, descending: true })
       .then(doc => {
@@ -25,15 +29,15 @@ export const fetchAllMyNotes = keyword => {
       })
       .catch(error => {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(error.toString()));
       });
   });
 };
 
-export const fetchAllMyAnnotationsByUrl = url => {
+export const fetchAllMyUrlsByHost = host => {
   return new Promise((resolve, reject) => {
     db.find({
-      selector: { url: url },
+      selector: { url: host },
     })
       .then(result => {
         resolve(
@@ -49,60 +53,60 @@ export const fetchAllMyAnnotationsByUrl = url => {
   });
 };
 
-export const savePageAnnotation = pageAnnotation => {
+export const saveTab = tab => {
   return new Promise((resolve, reject) => {
     const id = idPrefix + '-' + genId();
-    pageAnnotation._id = id;
-    pageAnnotation.createdAt = getCurrentTimestampInMs();
+    tab._id = id;
+    tab.createdAt = getCurrentTimestampInMs();
 
-    db.put(pageAnnotation)
+    db.put(tab)
       .then(_ => {
         resolve(db.get(id));
       })
       .catch(error => {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(error.toString()));
       });
   });
 };
 
-export const updatePageAnnotation = pageAnnotation => {
+export const updateTab = tab => {
   return new Promise((resolve, reject) => {
-    if (!pageAnnotation.id) {
+    if (!tab.id) {
       reject(new Error('Page annotation update: Missing id field.'));
     }
 
-    const id = pageAnnotation.id;
+    const id = tab.id;
     db.get(id)
       .then(doc => {
         // https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
-        doc.note = pageAnnotation.note;
-        doc.highlightColor = pageAnnotation.highlightColor;
-        doc.tags = pageAnnotation.tags;
+        doc.note = tab.note;
+        doc.highlightColor = tab.highlightColor;
+        doc.tags = tab.tags;
         db.put(doc).then(_ => {
           db.get(id).then(doc => resolve(doc));
         });
       })
       .catch(error => {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(error.toString()));
       });
   });
 };
 
-export const deletePageAnnotation = pageAnnotationId => {
+export const deleteTab = tabId => {
   return new Promise((resolve, reject) => {
-    if (!pageAnnotationId || pageAnnotationId < 0) {
+    if (!tabId || tabId < 0) {
       reject(new Error('Page annotation id to delete is not valid'));
     }
 
-    db.get(pageAnnotationId)
+    db.get(tabId)
       .then(doc => {
         db.remove(doc).then(_ => resolve());
       })
       .catch(error => {
         console.error(error);
-        reject(error);
+        reject(error instanceof Error ? error : new Error(error.toString()));
       });
   });
 };

@@ -19,9 +19,9 @@ const getNotes = (tab, actionType, iconClick = false) => {
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    title: 'Annotate in Shark Eagle Note',
+    title: 'Open Shark Eagle Tab',
     id: types.SALTYNOTE_RIGHT_CLICK_MENU_ID,
-    contexts: ['selection'],
+    contexts: ['all'],
   });
 });
 
@@ -42,7 +42,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url && tab.url.toLowerCase().startsWith('http')) {
+  if (changeInfo.status === 'complete' && tab.url?.toLowerCase().startsWith('http')) {
     getNotes(tab, types.HIGHLIGHT_ALL);
   }
 });
