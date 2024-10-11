@@ -90,8 +90,8 @@ export const upsertTabByUrl = (url, title) => {
 
 export const deleteTab = url => {
   return new Promise((resolve, reject) => {
-    if (!url || url < 0) {
-      reject(new Error('ID to delete is not valid'));
+    if (!url || !url.startsWith('http')) {
+      reject(new Error('Url to delete is not valid'));
     }
 
     db.get(url)

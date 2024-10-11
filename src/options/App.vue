@@ -7,10 +7,9 @@
     </div>
 
     <div class="row">
-      <table id="note-table" class="table table-striped table-bordered" style="width:100%">
+      <table id="note-table" class="display compact" style="width:100%">
         <thead>
           <tr>
-            <th>Domain</th>
             <th>title</th>
             <th>count</th>
             <th>last view time</th>
@@ -32,9 +31,6 @@ import 'datatables.net';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'datatables.net-buttons/js/dataTables.buttons.min';
-import 'datatables.net-buttons/js/buttons.html5.min';
-import 'datatables.net-buttons/js/buttons.print.min';
 import * as DB from '../utils/db';
 
 export default {
@@ -46,58 +42,48 @@ export default {
     };
   },
   mounted() {
-    console.log(11);
     this.dataTable = $('#note-table').DataTable({
-      order: [[4, 'desc']],
+      order: [[2, 'desc']],
       processing: true,
       dom: 'Blfrtip',
-      buttons: ['copyHtml5', 'csvHtml5', 'print'],
-      columns: [{ width: '20%' }, { width: '35%' }, { width: '20%' }, { width: '10%' }, { width: '10%' }, { width: '5%' }],
+      columns: [{ width: '35%' }, { width: '10%' }, { width: '20%' }, { width: '10%' }, { width: '5%' }],
     });
-    console.log(12);
     this.refreshTableData();
+    const self = this;
+    $(document).on('click', '.note-delete-btn', function(event) {
+      event.preventDefault();
+      const id = $(this).data('id');
+      if (id) {
+        self.deleteNote(id);
+      }
+    });
   },
   methods: {
     refreshTableData() {
-      console.log(1);
       DB.fetchAllMyTabs().then(tabs => {
-        console.log(2);
         this.dataTable.clear();
         tabs.forEach(tab => {
           this.dataTable.row
             .add([
-              `<a href="${tab._id}" target="_blank">${getUrlHostname(tab._id)}</a>`,
-              tab.title,
+              `<a href="${tab._id}" target="_blank"><img src="https://s2.googleusercontent.com/s2/favicons?domain=${tab._id}" alt="favicon"/> ${tab.title}</a>`,
               tab.count,
               formatDate(tab.lastViewTime),
               formatDate(tab.createdAt),
-              `<button type="button" data-id="${tab.id}" class="btn btn-danger note-delete-btn">Delete</button>`,
+              `<button type="button" data-id="${tab._id}" class="btn btn-danger note-delete-btn">Delete</button>`,
             ])
             .draw(false);
         });
-        console.log(3);
-        const self = this;
-        $(document).on('click', '.note-delete-btn', function(event) {
-          event.preventDefault();
-          const id = $(this).data('id');
-          console.log('id = ', id);
-          if (id) {
-            self.deleteNote(id);
-          }
-        });
-        console.log(4);
       });
     },
-    deleteNote(noteId) {
-      if (confirm('Are you sure to delete this?')) {
-        // DB.deletePageAnnotation(noteId)
-        //   .then(res => {
-        //     console.log('Page annotation is deleted successfully!');
-        //     this.refreshTableData();
-        //   })
-        //   .catch(err => {
-        //     console.error(err);
-        //   });
+    deleteNote(url) {
+      if (confirm('Are you sure to delete this?' + url)) {
+        DB.deleteTab(url)
+          .then(res => {
+            this.refreshTableData();
+          })
+          .catch(err => {
+            console.error(err);
+          });
       }
     },
   },
