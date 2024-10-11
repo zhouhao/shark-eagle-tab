@@ -49,7 +49,6 @@ export const fetchAllMyTabs = () => {
           doc.rows
             .filter(r => r.id.startsWith(idPrefix))
             .map(r => {
-              r.doc.id = r.doc._id;
               return r.doc;
             })
         );
@@ -60,6 +59,8 @@ export const fetchAllMyTabs = () => {
   });
 };
 
+// Update tab info by bumping the count and updating the last view time,
+// if title is provided, update the title as well.
 export const upsertTabByUrl = (url, title) => {
   const id = getSanitizedUrl(url);
   return new Promise((resolve, reject) => {
@@ -75,7 +76,7 @@ export const upsertTabByUrl = (url, title) => {
       .catch(error => {
         if (error.status === 404) {
           // create the tab here
-          createTab(url, title)
+          createTab(id, title)
             .then(tab => resolve(tab))
             .catch(error => {
               processError(error, reject);
@@ -87,38 +88,13 @@ export const upsertTabByUrl = (url, title) => {
   });
 };
 
-// Update tab info by bumping the count and updating the last view time,
-// if title is provided, update the title as well.
-export const updateTab = (tab, title = '') => {
+export const deleteTab = url => {
   return new Promise((resolve, reject) => {
-    if (!tab.id) {
-      reject(new Error('Tab update: Missing id field.'));
-    }
-
-    const id = tab.id;
-    db.get(id)
-      .then(doc => {
-        // https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
-        doc.title = title || doc.title;
-        doc.lastViewTime = getCurrentTimestampInMs();
-        doc.count = (doc.count || 0) + 1;
-        db.put(doc).then(_ => {
-          db.get(id).then(doc => resolve(doc));
-        });
-      })
-      .catch(error => {
-        processError(error, reject);
-      });
-  });
-};
-
-export const deleteTab = id => {
-  return new Promise((resolve, reject) => {
-    if (!id || id < 0) {
+    if (!url || url < 0) {
       reject(new Error('ID to delete is not valid'));
     }
 
-    db.get(id)
+    db.get(url)
       .then(doc => {
         db.remove(doc).then(_ => resolve());
       })

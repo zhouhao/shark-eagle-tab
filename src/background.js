@@ -31,8 +31,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-chrome.tabs.onActivated.addListener(function(activeInfo) {
-  chrome.tabs.get(activeInfo.tabId, function(tab) {
-    processResult(DB.upsertTabByUrl(tab.url, tab.title));
+chrome.tabs.onActivated.addListener(activeInfo => {
+  chrome.tabs.get(activeInfo.tabId, tab => {
+    if (tab.url?.toLowerCase().startsWith('http')) {
+      processResult(DB.upsertTabByUrl(tab.url, tab.title));
+    }
   });
 });
