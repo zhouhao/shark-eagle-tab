@@ -11,9 +11,9 @@
         <thead>
           <tr>
             <th>Domain</th>
-            <th>Content</th>
-            <th>Note</th>
-            <th>Tags</th>
+            <th>title</th>
+            <th>count</th>
+            <th>last view time</th>
             <th>Timestamp</th>
             <th></th>
           </tr>
@@ -43,10 +43,10 @@ export default {
   data() {
     return {
       dataTable: null,
-      md: null,
     };
   },
   mounted() {
+    console.log(11);
     this.dataTable = $('#note-table').DataTable({
       order: [[4, 'desc']],
       processing: true,
@@ -54,25 +54,28 @@ export default {
       buttons: ['copyHtml5', 'csvHtml5', 'print'],
       columns: [{ width: '20%' }, { width: '35%' }, { width: '20%' }, { width: '10%' }, { width: '10%' }, { width: '5%' }],
     });
+    console.log(12);
     this.refreshTableData();
   },
   methods: {
     refreshTableData() {
-      DB.fetchAllMyTabs().then(notes => {
+      console.log(1);
+      DB.fetchAllMyTabs().then(tabs => {
+        console.log(2);
         this.dataTable.clear();
-        notes.forEach(note => {
+        tabs.forEach(tab => {
           this.dataTable.row
             .add([
-              `<a href="${note.url}" target="_blank">${getUrlHostname(note.url)}</a>`,
-              note.selectedText,
-              'xyz',
-              note.tags && note.tags.join(','),
-              formatDate(note.createdAt),
-              `<button type="button" data-id="${note.id}" class="btn btn-danger note-delete-btn">Delete</button>`,
+              `<a href="${tab._id}" target="_blank">${getUrlHostname(tab._id)}</a>`,
+              tab.title,
+              tab.count,
+              formatDate(tab.lastViewTime),
+              formatDate(tab.createdAt),
+              `<button type="button" data-id="${tab.id}" class="btn btn-danger note-delete-btn">Delete</button>`,
             ])
             .draw(false);
         });
-
+        console.log(3);
         const self = this;
         $(document).on('click', '.note-delete-btn', function(event) {
           event.preventDefault();
@@ -82,18 +85,19 @@ export default {
             self.deleteNote(id);
           }
         });
+        console.log(4);
       });
     },
     deleteNote(noteId) {
       if (confirm('Are you sure to delete this?')) {
-        DB.deletePageAnnotation(noteId)
-          .then(res => {
-            console.log('Page annotation is deleted successfully!');
-            this.refreshTableData();
-          })
-          .catch(err => {
-            console.error(err);
-          });
+        // DB.deletePageAnnotation(noteId)
+        //   .then(res => {
+        //     console.log('Page annotation is deleted successfully!');
+        //     this.refreshTableData();
+        //   })
+        //   .catch(err => {
+        //     console.error(err);
+        //   });
       }
     },
   },
