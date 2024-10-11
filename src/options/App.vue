@@ -11,7 +11,7 @@
         <div class="col-md-5 col-lg-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">Tab Group</span>
-            <span class="badge bg-primary rounded-pill">{{ Object.keys(tabUrlGroup).length }}</span>
+            <span class="badge bg-primary rounded-pill">{{ tabGroupUrlMap.size }}</span>
           </h4>
           <div class="list-group list-group-flush border-bottom scrollarea">
             <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
@@ -33,8 +33,7 @@
         <div class="col-md-7 col-lg-8">
           <div class="card">
             <div class="card-header">
-              Featured
-              <!-- Example single danger button -->
+              Links for Group: {{ currentGroup }}
               <div class="btn-group float-end">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                   {{ sortMap.get(sortMethod) }}
@@ -47,9 +46,11 @@
               </div>
             </div>
             <div class="card-body">
-              <h5 class="card-title">Special title treatment</h5>
-              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-              <a href="#" class="btn btn-primary">Go somewhere</a>
+              <ol class="list-group list-group-numbered">
+                <li class="list-group-item">A list item</li>
+                <li class="list-group-item">A list item</li>
+                <li class="list-group-item">A list item</li>
+              </ol>
             </div>
           </div>
         </div>
@@ -60,12 +61,12 @@
 
 <script>
 import { getUrlHostname } from '../utils/urls';
-import { formatDate } from '../utils/base';
 import $ from 'jquery';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/db';
 
+const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
 const SORT_BY_LAST_VIEW = (tab1, tab2) => tab2.lastViewTime - tab1.lastViewTime;
 const SORT_MAP = new Map([
@@ -78,13 +79,13 @@ export default {
 
   data() {
     return {
-      dataTable: null,
       // store a cache copy of all tabs grouped by host name
-      tabUrlGroup: {},
-      tabViewGroup: {},
+      tabGroupUrlMap: new Map(),
+      tabGroupViewCountMap: new Map(),
       sortMethod: SORT_BY_COUNT,
-      currentHost: 'all',
+      currentGroup: DEFAULT_GROUP_KEY,
       sortMap: SORT_MAP,
+      currentTabList: [],
     };
   },
   mounted() {
@@ -100,7 +101,33 @@ export default {
   },
   methods: {
     loadTabData() {
-      DB.fetchAllMyTabs().then(tabs => {});
+      const localTabGroupUrlMap = new Map();
+      const localTabGroupViewCountMap = new Map();
+      localTabGroupUrlMap.set(DEFAULT_GROUP_KEY, []);
+      localTabGroupViewCountMap.set(DEFAULT_GROUP_KEY, 0);
+
+      const self = this;
+      DB.fetchAllMyTabs().then(tabs => {
+        tabs.forEach(tab => {
+          const count = tab.count;
+          const url = tab._id;
+          const host = getUrlHostname(url);
+          if (!localTabGroupUrlMap.has(host)) {
+            localTabGroupUrlMap.set(host, []);
+            localTabGroupViewCountMap.set(host, 0);
+          }
+
+          localTabGroupUrlMap.get(host).push(url);
+          localTabGroupViewCountMap.set(host, localTabGroupViewCountMap.get(host) + count);
+
+          localTabGroupUrlMap.get(DEFAULT_GROUP_KEY).push(url);
+          localTabGroupViewCountMap.set(DEFAULT_GROUP_KEY, localTabGroupViewCountMap.get(DEFAULT_GROUP_KEY) + count);
+        });
+        self.tabGroupUrlMap = localTabGroupUrlMap;
+        self.tabGroupViewCountMap = localTabGroupViewCountMap;
+        self.currentTabList = localTabGroupUrlMap.get(self.currentGroup);
+        self.currentTabList.sort(self.sortMethod);
+      });
     },
     deleteNote(url) {
       if (confirm('Are you sure to delete this?' + url)) {
