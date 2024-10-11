@@ -12,6 +12,13 @@ export const formatDate = value => {
   }
   return '';
 };
+export const formatDatetime = value => {
+  if (value) {
+    const dt = new Date(value);
+    return `${addZero(dt.getMonth() + 1)}/${addZero(dt.getDate())}/${dt.getFullYear()} ${addZero(dt.getHours())}:${addZero(dt.getMinutes())}`;
+  }
+  return '';
+};
 
 export const isBlank = str => !str?.trim();
 
