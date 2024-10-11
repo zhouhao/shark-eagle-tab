@@ -5,11 +5,11 @@ import { genId, getCurrentTimestampInMs } from './base';
 PouchDB.plugin(PouchDBFind);
 const db = new PouchDB('shark-eagle-tab');
 db.createIndex({
-  index: { fields: ['host'] },
+  index: { fields: ['url'] },
 });
 
 db.createIndex({
-  index: { fields: ['title'] },
+  index: { fields: ['lastViewTime'] },
 });
 
 const idPrefix = 'tab';
@@ -34,12 +34,14 @@ export const fetchAllMyUrls = keyword => {
   });
 };
 
-export const fetchAllMyUrlsByHost = host => {
+export const fetchByUrl = url => {
   return new Promise((resolve, reject) => {
     db.find({
-      selector: { url: host },
+      selector: { url: url },
+      limit: 1,
     })
       .then(result => {
+        console.log('query result: find one', JSON.stringify(result));
         resolve(
           result.docs.map(d => {
             d.id = d._id;
@@ -47,17 +49,25 @@ export const fetchAllMyUrlsByHost = host => {
           })
         );
       })
-      .catch(function(err) {
-        console.error(err);
+      .catch(error => {
+        console.log('query result: not found', error.toString());
+        console.error(error);
       });
   });
 };
 
-export const saveTab = tab => {
+export const createTab = (url, title) => {
   return new Promise((resolve, reject) => {
     const id = idPrefix + '-' + genId();
-    tab._id = id;
-    tab.createdAt = getCurrentTimestampInMs();
+    const now = getCurrentTimestampInMs();
+    const tab = {
+      _id: id,
+      url,
+      title,
+      createdAt: now,
+      lastViewTime: now,
+      count: 1,
+    };
 
     db.put(tab)
       .then(_ => {
@@ -70,19 +80,21 @@ export const saveTab = tab => {
   });
 };
 
-export const updateTab = tab => {
+// Update tab info by bumping the count and updating the last view time,
+// if title is provided, update the title as well.
+export const updateTab = (tab, title = '') => {
   return new Promise((resolve, reject) => {
     if (!tab.id) {
-      reject(new Error('Page annotation update: Missing id field.'));
+      reject(new Error('Tab update: Missing id field.'));
     }
 
     const id = tab.id;
     db.get(id)
       .then(doc => {
         // https://pouchdb.com/guides/documents.html#updating-documents%E2%80%93correctly
-        doc.note = tab.note;
-        doc.highlightColor = tab.highlightColor;
-        doc.tags = tab.tags;
+        doc.title = title || doc.title;
+        doc.lastViewTime = getCurrentTimestampInMs();
+        doc.count = (doc.count || 0) + 1;
         db.put(doc).then(_ => {
           db.get(id).then(doc => resolve(doc));
         });
@@ -94,13 +106,13 @@ export const updateTab = tab => {
   });
 };
 
-export const deleteTab = tabId => {
+export const deleteTab = id => {
   return new Promise((resolve, reject) => {
-    if (!tabId || tabId < 0) {
-      reject(new Error('Page annotation id to delete is not valid'));
+    if (!id || id < 0) {
+      reject(new Error('ID to delete is not valid'));
     }
 
-    db.get(tabId)
+    db.get(id)
       .then(doc => {
         db.remove(doc).then(_ => resolve());
       })
