@@ -135,7 +135,7 @@ export default {
       return 'https://s2.googleusercontent.com/s2/favicons?domain=' + host;
     },
     deleteNote(url) {
-      if (confirm('Are you sure to delete this?' + url)) {
+      if (confirm('Are you sure to delete this?')) {
         DB.deleteTab(url)
           .then(res => {
             this.loadTabData();
