@@ -18,7 +18,7 @@
   "permissions": ["activeTab", "contextMenus", "tabs"],
   "web_accessible_resources": [
     {
-      "resources": ["icons/icon.png", "icons/notfound.png"],
+      "resources": ["icons/icon.png"],
       "matches": ["<all_urls>"]
     }
   ],
