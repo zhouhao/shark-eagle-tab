@@ -1,0 +1,29 @@
+{
+  "name": "Shark Eagle Tab",
+  "description": "A simple yet powerful tab management toolkit",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "icons": {
+    "48": "icons/icon.png",
+    "128": "icons/icon.png",
+    "144": "icons/icon.png"
+  },
+  "action": {
+    "default_title": "Shark Eagle Tab"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options/options.html",
+  "permissions": ["activeTab", "contextMenus", "tabs"],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/icon.png", "icons/notfound.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts; script-src 'self'; object-src 'self'"
+  }
+}

@@ -1,0 +1,276 @@
+<template>
+  <div id="crx-side-bar" class="card text-white" v-show="showSideBar">
+    <div class="card-header bg-primary text-center border-primary">
+      Shark Eagle Note
+      <button type="button" class="close" aria-label="Close" @click="closeSideBar">
+        <span>&times;</span>
+      </button>
+    </div>
+    <div class="card-body text-primary overflow-auto">
+      <template v-if="annotations.length > 0">
+        <div class="list-group">
+          <a
+            href="javascript:void(0)"
+            @click="noteHighlight(annotation)"
+            class="list-group-item list-group-item-action"
+            v-for="(annotation, index) in annotations"
+            :key="annotation.id"
+          >
+            <template v-if="annotation.isPageOnly">
+              <label class="text-primary">{{ annotation.selectedText }}</label>
+            </template>
+            <template v-else>
+              <SelectedTextBlockquote :text="annotation.selectedText" :class="colorClass(annotation.highlightColor)" />
+            </template>
+            <div class="form-group">
+              <template v-if="annotation.showSave">
+                <ColorSelect v-if="!annotation.isPageOnly" :color="getNoteHighlightColor(annotation)" @update:color="annotation.highlightColor = $event"></ColorSelect>
+                <textarea class="form-control" rows="3" v-model="annotation.note"></textarea>
+                <vue-tags-input v-model="tag" :tags="annotation.tags" @tags-changed="newTags => (annotation.tags = parseTags(newTags))" />
+              </template>
+              <template v-else>
+                <div class="shadow-none p-3 bg-light rounded" v-if="!!annotation.note" v-html="markdown(annotation.note)"></div>
+                <div class="tags">
+                  <span v-for="tag in annotation.tags" :key="tag" class="badge badge-primary">{{ tag }}</span>
+                </div>
+              </template>
+            </div>
+            <div class="row my-btn-group">
+              <div class="col-md-6">
+                <small>{{ readableTime(annotation.createdAt) }}</small>
+              </div>
+              <div class="offset-md-3 col-md-3">
+                <template v-if="!annotation.showSave">
+                  <a href="javascript:void(0)" class="del-btn" @click.stop="deleteMyNote(annotation.id)">
+                    <fa-icon icon="trash-alt" />
+                  </a>
+                  <a href="javascript:void(0)" @click.stop="enableEdit(index)">
+                    <fa-icon icon="edit" />
+                  </a>
+                </template>
+                <template v-else>
+                  <a href="javascript:void(0)" @click.stop="cancelUpdate(index)">
+                    <fa-icon icon="undo" />
+                  </a>
+                  <a href="javascript:void(0)" style="color:green;" @click.stop="updateNote(annotation.id, index)">
+                    <fa-icon icon="cloud-upload-alt" />
+                  </a>
+                </template>
+              </div>
+            </div>
+          </a>
+        </div>
+      </template>
+      <template v-else>
+        <NoAnnotationPlaceholder />
+      </template>
+      <CustomAnnotationCard v-show="showCustomNoteWindow" @hide:CustomAnnotationCard="showCustomNoteWindow = false" />
+    </div>
+
+    <div class="card-footer text-muted text-center">
+      <a href="#" title="Add Notes without Selecting Context" @click.prevent="showCustomNote"> Add Page Note</a>
+    </div>
+  </div>
+</template>
+
+<script>
+import CustomAnnotationCard from './CustomAnnotationCard';
+import NoAnnotationPlaceholder from './NoAnnotationPlaceholder';
+import ColorSelect from './ColorSelect';
+import { colorToClassName, defaultColor } from '../../utils/color';
+import * as types from '../../utils/action-types';
+import { deletePageAnnotation, updatePageAnnotation } from '../../utils/page-annotation';
+import { highlight } from '../../utils/highlight-mark';
+import { mdRender } from '../../utils/md';
+import { readableTimestamp } from '../../utils/base';
+import SelectedTextBlockquote from './SelectedTextBlockquote';
+import VueTagsInput from '@johmun/vue-tags-input';
+
+export default {
+  name: 'SideBar',
+  components: {
+    SelectedTextBlockquote,
+    NoAnnotationPlaceholder,
+    CustomAnnotationCard,
+    ColorSelect,
+    VueTagsInput,
+  },
+  data() {
+    return {
+      annotations: [],
+      showSideBar: false,
+      showCustomNoteWindow: false,
+      tag: '',
+    };
+  },
+
+  mounted() {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.action === types.SHOW_SIDE_BAR && !this.isInIframe()) {
+        if (!this.showSideBar) {
+          this.showCustomNoteWindow = false;
+        }
+        if (request.iconClick) {
+          this.showSideBar = !this.showSideBar;
+        } else {
+          this.showSideBar = true;
+        }
+        if (this.showSideBar) {
+          this.annotations = request.data;
+        }
+      }
+      sendResponse({ done: true });
+      return true;
+    });
+  },
+  methods: {
+    colorClass(color) {
+      return colorToClassName(color);
+    },
+    getNoteHighlightColor(note) {
+      if (note.highlightColor) {
+        return note.highlightColor;
+      }
+      return defaultColor;
+    },
+    closeSideBar() {
+      this.showSideBar = false;
+      this.$emit('hide:sidebar');
+    },
+    // This is a hack for v-for re-rendering:
+    // https://vuejs.org/v2/guide/list.html#Mutation-Methods
+    refreshNotesForRendering() {
+      this.annotations.push({});
+      this.annotations.pop();
+    },
+    toggleSave(index, showSave) {
+      const note = this.annotations[index];
+      note.showSave = showSave;
+      this.refreshNotesForRendering();
+    },
+    enableEdit(index) {
+      this.toggleSave(index, true);
+    },
+    cancelUpdate(index) {
+      this.toggleSave(index, false);
+    },
+    updateNote(noteId, index) {
+      const note = this.annotations[index];
+      updatePageAnnotation(note).then(() => {
+        this.toggleSave(index, false);
+      });
+    },
+    noteHighlight(note) {
+      // if it is a custom note, no need to highlight it in current page
+      if (note.isPageOnly) {
+        return;
+      }
+      highlight(note);
+      const el = document.getElementById(note.id);
+      if (el) {
+        document.getElementById(note.id).scrollIntoView();
+      }
+    },
+    showCustomNote() {
+      const topOffSet = document.querySelector('#crx-side-bar .card-header').offsetHeight;
+      const bottomOffSet = document.querySelector('#crx-side-bar .card-footer').offsetHeight;
+      document.querySelector('#crx-side-bar .custom-note-box').setAttribute('style', 'top:' + topOffSet + 'px');
+      document.querySelector('#crx-side-bar .custom-note-body').setAttribute('style', 'bottom:' + (topOffSet + bottomOffSet) + 'px');
+      this.showCustomNoteWindow = true;
+    },
+    deleteMyNote(noteId) {
+      if (confirm('Sure to delete this annotation?')) {
+        deletePageAnnotation(noteId).then(() => {
+          console.log('Page annotation is deleted');
+          this.annotations = this.annotations.filter(n => noteId !== n.id);
+        });
+      }
+    },
+    markdown(val) {
+      return mdRender(val);
+    },
+    readableTime(ts) {
+      return readableTimestamp(ts);
+    },
+    parseTags(newTags) {
+      if (!newTags) {
+        return [];
+      }
+      return newTags.map(tag => {
+        return tag.text;
+      });
+    },
+    isInIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    },
+  },
+};
+</script>
+
+<style lang="scss">
+div.saltynote {
+  $zIndex: 9999;
+  div#crx-side-bar.card.text-white {
+    height: 100vh;
+    width: 400px !important;
+    position: fixed;
+    background-color: #ffffff;
+    z-index: $zIndex;
+    right: 0;
+    box-shadow: -12px 0px 25px 0px rgba(0, 0, 0, 0.75);
+    border-radius: 10px;
+
+    .card-header {
+      color: white !important;
+    }
+
+    .my-note {
+      font-weight: normal;
+    }
+
+    .my-btn-group {
+      a:first-child {
+        margin-right: 10px;
+      }
+
+      .del-btn {
+        color: red;
+      }
+    }
+
+    .logout a {
+      color: red;
+      font-style: italic;
+    }
+  }
+
+  .my-note path {
+    fill: red;
+  }
+
+  div.tags {
+    margin-top: 5px;
+
+    span.badge.badge-primary {
+      border-color: unset;
+      padding: 0.3rem;
+    }
+  }
+
+  .vue-tags-input {
+    .ti-input {
+      margin-top: 5px;
+      border-radius: 0.25rem;
+    }
+  }
+
+  svg.svg-inline--fa {
+    width: 1em;
+    height: 1em;
+  }
+}
+</style>
