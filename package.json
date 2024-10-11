@@ -7,12 +7,11 @@
     "node": ">=10"
   },
   "scripts": {
-    "build:scss": "sass-plus -i src/custom.scss -o dist/bs4.css -c",
     "lint": "eslint --ext .js,.vue src",
     "prettier": "prettier \"src/**/*.{js,vue}\"",
     "prettier:write": "npm run prettier -- --write",
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && npm run build:scss && cross-env NODE_ENV=production webpack --hide-modules",
-    "package": "export NODE_OPTIONS=--openssl-legacy-provider && npm run build:scss && cross-env NODE_ENV=production RELEASE=true webpack --hide-modules",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider && cross-env NODE_ENV=production webpack --hide-modules",
+    "package": "export NODE_OPTIONS=--openssl-legacy-provider && cross-env NODE_ENV=production RELEASE=true webpack --hide-modules",
     "build-zip": "npm run package && node scripts/build-zip.js"
   },
   "husky": {
@@ -42,6 +41,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.0.0",
     "@babel/preset-env": "^7.9.6",
     "@babel/runtime-corejs3": "^7.9.6",
+    "@types/jquery": "^3.5.31",
     "archiver": "^3.0.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.2",

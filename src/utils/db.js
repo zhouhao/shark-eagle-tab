@@ -14,7 +14,7 @@ db.createIndex({
 
 const idPrefix = 'tab';
 
-export const fetchAllMyUrls = keyword => {
+export const fetchAllMyTabs = () => {
   return new Promise((resolve, reject) => {
     db.allDocs({ include_docs: true, descending: true })
       .then(doc => {

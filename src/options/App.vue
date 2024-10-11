@@ -35,8 +35,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'datatables.net-buttons/js/dataTables.buttons.min';
 import 'datatables.net-buttons/js/buttons.html5.min';
 import 'datatables.net-buttons/js/buttons.print.min';
-import { mdRender } from '../utils/md';
-import 'highlight.js/styles/github.css';
 import * as DB from '../utils/db';
 
 export default {
@@ -60,14 +58,14 @@ export default {
   },
   methods: {
     refreshTableData() {
-      DB.fetchAllMyNotes().then(notes => {
+      DB.fetchAllMyTabs().then(notes => {
         this.dataTable.clear();
         notes.forEach(note => {
           this.dataTable.row
             .add([
               `<a href="${note.url}" target="_blank">${getUrlHostname(note.url)}</a>`,
               note.selectedText,
-              mdRender(note.note),
+              'xyz',
               note.tags && note.tags.join(','),
               formatDate(note.createdAt),
               `<button type="button" data-id="${note.id}" class="btn btn-danger note-delete-btn">Delete</button>`,

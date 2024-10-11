@@ -23,7 +23,6 @@ const config = {
   entry: {
     background: './background.js',
     'options/options': './options/options.js',
-    'overlay/overlay': './overlay/overlay.js',
   },
   output: {
     path: `${__dirname}/dist`,
