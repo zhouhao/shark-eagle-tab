@@ -14,19 +14,20 @@
             <span class="badge bg-primary rounded-pill">{{ tabGroupUrlMap.size }}</span>
           </h4>
           <div class="list-group list-group-flush border-bottom scrollarea">
-            <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm" aria-current="true">
+            <a
+              v-for="group in getSortedGroups()"
+              :key="group"
+              href="#"
+              class="list-group-item list-group-item-action py-3 lh-sm"
+              :class="{ active: group === currentGroup }"
+              aria-current="true"
+              @click="updateGroup(group)"
+            >
               <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1">List group item heading</strong>
-                <small>Wed</small>
+                <strong class="mb-1">{{ group }}</strong>
+                <small><img :src="getImgSrc(group)" alt="favicon"/></small>
               </div>
-              <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm">
-              <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1">List group item heading</strong>
-                <small class="text-body-secondary">Tues</small>
-              </div>
-              <div class="col-10 mb-1 small">Some placeholder content in a paragraph below the heading and date.</div>
+              <div class="col-10 mb-1 small">Url Count: {{ tabGroupUrlMap.get(group).length }} / Total View Count: {{ tabGroupViewCountMap.get(group) }}</div>
             </a>
           </div>
         </div>
@@ -47,9 +48,9 @@
             </div>
             <div class="card-body">
               <ol class="list-group list-group-numbered">
-                <li class="list-group-item">A list item</li>
-                <li class="list-group-item">A list item</li>
-                <li class="list-group-item">A list item</li>
+                <li class="list-group-item" v-for="tab in currentTabList" :key="tab._id">
+                  <a :href="tab._id" target="_blank"> {{ tab.title }}</a> - <small>(Views: {{ tab.count }}, Last Viewed: {{ formatTime(tab.lastViewTime) }})</small>
+                </li>
               </ol>
             </div>
           </div>
@@ -65,6 +66,7 @@ import $ from 'jquery';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/db';
+import { formatDatetime } from '../utils/base';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -117,10 +119,10 @@ export default {
             localTabGroupViewCountMap.set(host, 0);
           }
 
-          localTabGroupUrlMap.get(host).push(url);
+          localTabGroupUrlMap.get(host).push(tab);
           localTabGroupViewCountMap.set(host, localTabGroupViewCountMap.get(host) + count);
 
-          localTabGroupUrlMap.get(DEFAULT_GROUP_KEY).push(url);
+          localTabGroupUrlMap.get(DEFAULT_GROUP_KEY).push(tab);
           localTabGroupViewCountMap.set(DEFAULT_GROUP_KEY, localTabGroupViewCountMap.get(DEFAULT_GROUP_KEY) + count);
         });
         self.tabGroupUrlMap = localTabGroupUrlMap;
@@ -128,6 +130,13 @@ export default {
         self.currentTabList = localTabGroupUrlMap.get(self.currentGroup);
         self.currentTabList.sort(self.sortMethod);
       });
+    },
+    getSortedGroups() {
+      const groups = this.tabGroupViewCountMap.keys();
+      return Array.from(groups).sort((a, b) => this.tabGroupViewCountMap.get(b) - this.tabGroupViewCountMap.get(a));
+    },
+    getImgSrc(host) {
+      return 'https://s2.googleusercontent.com/s2/favicons?domain=' + host;
     },
     deleteNote(url) {
       if (confirm('Are you sure to delete this?' + url)) {
@@ -142,6 +151,16 @@ export default {
     },
     updateSortMethod(method) {
       this.sortMethod = method;
+      this.currentTabList.sort(this.sortMethod);
+    },
+    updateGroup(group) {
+      this.currentGroup = group;
+      this.currentTabList = this.tabGroupUrlMap.get(group);
+      this.currentTabList.sort(this.sortMethod);
+    },
+
+    formatTime(ts) {
+      return formatDatetime(ts);
     },
   },
 };
