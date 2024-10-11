@@ -62,7 +62,6 @@
 
 <script>
 import { getUrlHostname } from '../utils/urls';
-import $ from 'jquery';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/db';
@@ -92,14 +91,6 @@ export default {
   },
   mounted() {
     this.loadTabData();
-    const self = this;
-    $(document).on('click', '.note-delete-btn', function(event) {
-      event.preventDefault();
-      const id = $(this).data('id');
-      if (id) {
-        self.deleteNote(id);
-      }
-    });
   },
   methods: {
     loadTabData() {
