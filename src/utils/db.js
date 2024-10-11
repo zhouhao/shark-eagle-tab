@@ -1,6 +1,7 @@
 import PouchDB from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
-import { genId, getCurrentTimestampInMs } from './base';
+import { getCurrentTimestampInMs } from './base';
+import { getSanitizedUrl } from './urls';
 
 PouchDB.plugin(PouchDBFind);
 const db = new PouchDB('shark-eagle-tab');
@@ -12,7 +13,33 @@ db.createIndex({
   index: { fields: ['lastViewTime'] },
 });
 
-const idPrefix = 'tab';
+const idPrefix = 'http';
+
+const processError = (error, reject) => {
+  console.error(error);
+  reject(error instanceof Error ? error : new Error(error.toString()));
+};
+
+const createTab = (url, title) => {
+  return new Promise((resolve, reject) => {
+    const now = getCurrentTimestampInMs();
+    const tab = {
+      _id: url,
+      title,
+      createdAt: now,
+      lastViewTime: now,
+      count: 1,
+    };
+
+    db.put(tab)
+      .then(_ => {
+        resolve(db.get(url));
+      })
+      .catch(error => {
+        processError(error, reject);
+      });
+  });
+};
 
 export const fetchAllMyTabs = () => {
   return new Promise((resolve, reject) => {
@@ -28,54 +55,34 @@ export const fetchAllMyTabs = () => {
         );
       })
       .catch(error => {
-        console.error(error);
-        reject(error instanceof Error ? error : new Error(error.toString()));
+        processError(error, reject);
       });
   });
 };
 
-export const fetchByUrl = url => {
+export const upsertTabByUrl = (url, title) => {
+  const id = getSanitizedUrl(url);
   return new Promise((resolve, reject) => {
-    db.find({
-      selector: { url: url },
-      limit: 1,
-    })
+    db.get(id)
       .then(result => {
-        console.log('query result: find one', JSON.stringify(result));
-        resolve(
-          result.docs.map(d => {
-            d.id = d._id;
-            return d;
-          })
-        );
+        result.count = (result.count || 0) + 1;
+        result.title = title || result.title;
+        result.lastViewTime = getCurrentTimestampInMs();
+        db.put(result).then(_ => {
+          db.get(id).then(doc => resolve(doc));
+        });
       })
       .catch(error => {
-        console.log('query result: not found', error.toString());
-        console.error(error);
-      });
-  });
-};
-
-export const createTab = (url, title) => {
-  return new Promise((resolve, reject) => {
-    const id = idPrefix + '-' + genId();
-    const now = getCurrentTimestampInMs();
-    const tab = {
-      _id: id,
-      url,
-      title,
-      createdAt: now,
-      lastViewTime: now,
-      count: 1,
-    };
-
-    db.put(tab)
-      .then(_ => {
-        resolve(db.get(id));
-      })
-      .catch(error => {
-        console.error(error);
-        reject(error instanceof Error ? error : new Error(error.toString()));
+        if (error.status === 404) {
+          // create the tab here
+          createTab(url, title)
+            .then(tab => resolve(tab))
+            .catch(error => {
+              processError(error, reject);
+            });
+        } else {
+          processError(error, reject);
+        }
       });
   });
 };
@@ -100,8 +107,7 @@ export const updateTab = (tab, title = '') => {
         });
       })
       .catch(error => {
-        console.error(error);
-        reject(error instanceof Error ? error : new Error(error.toString()));
+        processError(error, reject);
       });
   });
 };
@@ -117,8 +123,7 @@ export const deleteTab = id => {
         db.remove(doc).then(_ => resolve());
       })
       .catch(error => {
-        console.error(error);
-        reject(error instanceof Error ? error : new Error(error.toString()));
+        processError(error, reject);
       });
   });
 };
