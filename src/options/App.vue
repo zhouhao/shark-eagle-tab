@@ -52,7 +52,7 @@
             <div class="card-body">
               <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">🔎</span>
-                <input type="text" class="form-control" placeholder="Search By Title Keyword" @keyup.enter="processSearch" />
+                <input type="text" class="form-control" placeholder="Search By Title Keyword" @keyup.enter="processSearch" ref="searchInput" />
               </div>
               <ol class="list-group list-group-numbered">
                 <li class="list-group-item tab-entry" v-for="tab in currentTabList" :key="tab._id">
@@ -160,6 +160,7 @@ export default {
       this.currentGroup = group;
       this.currentTabList = this.tabGroupUrlMap.get(group);
       this.currentTabList.sort(this.sortMethod);
+      this.$refs.searchInput.value = '';
     },
     formatTime(ts) {
       return readableTimestamp(ts);
