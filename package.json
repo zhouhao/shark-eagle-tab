@@ -31,7 +31,6 @@
     "@babel/plugin-proposal-optional-chaining": "^7.0.0",
     "@babel/preset-env": "^7.9.6",
     "@babel/runtime-corejs3": "^7.9.6",
-    "@types/jquery": "^3.5.31",
     "archiver": "^3.0.0",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.2",

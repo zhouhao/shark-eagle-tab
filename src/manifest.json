@@ -15,15 +15,5 @@
     "service_worker": "background.js"
   },
   "options_page": "options/options.html",
-  "permissions": ["activeTab", "contextMenus", "tabs"],
-  "web_accessible_resources": [
-    {
-      "resources": ["icons/icon.png"],
-      "matches": ["<all_urls>"]
-    }
-  ],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'",
-    "sandbox": "sandbox allow-scripts; script-src 'self'; object-src 'self'"
-  }
+  "permissions": ["activeTab", "contextMenus", "tabs"]
 }

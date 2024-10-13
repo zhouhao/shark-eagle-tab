@@ -7,16 +7,6 @@ const { VueLoaderPlugin } = require('vue-loader');
 const TerserPlugin = require('terser-webpack-plugin');
 const { version } = require('./package.json');
 
-let proEnv;
-try {
-  proEnv = require('./env.json');
-} catch (error) {
-  console.error('========================================================================================');
-  console.error('Cannot find env.json, please make a copy of "env.example.json", and name it "env.json"');
-  console.error('========================================================================================');
-  throw new Error('Cannot find env.json, please make a copy of "env.example.json", and name it "env.json"');
-}
-
 const config = {
   mode: process.env.NODE_ENV,
   context: `${__dirname}/src`,
@@ -91,9 +81,6 @@ const config = {
         transform: content => {
           const jsonContent = JSON.parse(content);
           jsonContent.version = version;
-          if (process.env.RELEASE !== 'true' && proEnv.manifest_key) {
-            jsonContent.key = proEnv.manifest_key;
-          }
           return JSON.stringify(jsonContent, null, 2);
         },
       },
