@@ -57,7 +57,10 @@
               <ol class="list-group list-group-numbered">
                 <li class="list-group-item tab-entry" v-for="tab in currentTabList" :key="tab._id">
                   <a :href="tab._id" target="_blank" :title="tab.title"> {{ truncateString(tab.title) }}</a> -
-                  <small>(Views: {{ tab.count }}, Last Viewed: {{ formatTime(tab.lastViewTime) }})</small>
+                  <small
+                    ><span class="badge text-bg-secondary" title="View Count">{{ tab.count }}</span>
+                    <span class="badge text-bg-light" title="Last Viewed Time">{{ formatTime(tab.lastViewTime) }}</span>
+                  </small>
                   <button type="button" class="btn-close float-end delete-btn" aria-label="Close" @click="deleteNote(tab._id)"></button>
                 </li>
               </ol>
@@ -165,7 +168,7 @@ export default {
     formatTime(ts) {
       return readableTimestamp(ts);
     },
-    truncateString(str, maxLength = 60) {
+    truncateString(str, maxLength = 80) {
       if (str.length <= maxLength) {
         return str;
       }
