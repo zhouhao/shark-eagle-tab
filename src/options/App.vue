@@ -70,7 +70,7 @@ import { getUrlHostname } from '../utils/urls';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/db';
-import { formatDatetime } from '../utils/base';
+import { readableTimestamp } from '../utils/base';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -159,8 +159,9 @@ export default {
     },
 
     formatTime(ts) {
-      return formatDatetime(ts);
+      return readableTimestamp(ts);
     },
+
     truncateString(str, maxLength = 60) {
       if (str.length <= maxLength) {
         return str;
@@ -180,6 +181,7 @@ export default {
   color: red;
   display: none;
 }
+
 .tab-entry:hover {
   background-color: rgba(169, 169, 169, 0.15);
 }
