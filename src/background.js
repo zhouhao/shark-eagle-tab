@@ -11,6 +11,12 @@ const processResult = promise => {
     });
 };
 
+chrome.action.onClicked.addListener(tab => {
+  chrome.runtime.openOptionsPage(() => {
+    /* Do Nothing */
+  });
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     title: 'Open Shark Eagle Tab',
@@ -21,7 +27,9 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === types.CMD_OPEN_OPTIONS_PAGE) {
-    chrome.runtime.openOptionsPage(() => console.log('Options page is opened'));
+    chrome.runtime.openOptionsPage(() => {
+      /* Do Nothing */
+    });
   }
 });
 
