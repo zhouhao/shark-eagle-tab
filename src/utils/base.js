@@ -31,3 +31,7 @@ export const getCurrentTimestampInMs = () => {
 export const genId = () => {
   return getCurrentTimestampInMs();
 };
+
+export const containsIgnoreCase = (str, searchStr) => {
+  return str.toLowerCase().includes(searchStr.toLowerCase());
+};

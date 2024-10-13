@@ -50,6 +50,10 @@
               </div>
             </div>
             <div class="card-body">
+              <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">🔎</span>
+                <input type="text" class="form-control" placeholder="Search By Title Keyword" @keyup.enter="processSearch" />
+              </div>
               <ol class="list-group list-group-numbered">
                 <li class="list-group-item tab-entry" v-for="tab in currentTabList" :key="tab._id">
                   <a :href="tab._id" target="_blank" :title="tab.title"> {{ truncateString(tab.title) }}</a> -
@@ -70,7 +74,7 @@ import { getUrlHostname } from '../utils/urls';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/db';
-import { readableTimestamp } from '../utils/base';
+import { containsIgnoreCase, readableTimestamp } from '../utils/base';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -157,16 +161,25 @@ export default {
       this.currentTabList = this.tabGroupUrlMap.get(group);
       this.currentTabList.sort(this.sortMethod);
     },
-
     formatTime(ts) {
       return readableTimestamp(ts);
     },
-
     truncateString(str, maxLength = 60) {
       if (str.length <= maxLength) {
         return str;
       }
       return str.slice(0, maxLength) + '...';
+    },
+    processSearch(event) {
+      const keyword = event.target.value;
+      if (!keyword || !keyword.length) {
+        this.updateGroup(this.currentGroup);
+        return;
+      }
+      const tabs = this.currentTabList;
+      this.currentTabList = tabs.filter(t => {
+        return containsIgnoreCase(t.title, keyword);
+      });
     },
   },
 };
