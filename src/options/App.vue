@@ -76,7 +76,7 @@
 import { getUrlHostname } from '../utils/urls';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import * as DB from '../utils/db';
+import * as DB from '../utils/count-db';
 import { containsIgnoreCase, readableTimestamp } from '../utils/base';
 
 const DEFAULT_GROUP_KEY = 'all';
