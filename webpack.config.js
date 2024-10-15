@@ -13,6 +13,7 @@ const config = {
   entry: {
     background: './background.js',
     'options/options': './options/options.js',
+    'options/tab': './options/tab.js',
   },
   output: {
     path: `${__dirname}/dist`,
@@ -75,6 +76,7 @@ const config = {
     new CopyPlugin([
       { from: 'icons', to: 'icons' },
       { from: 'options/options.html', to: 'options/options.html', transform: transformHtml },
+      { from: 'options/tab.html', to: 'options/tab.html', transform: transformHtml },
       {
         from: 'manifest.json',
         to: 'manifest.json',

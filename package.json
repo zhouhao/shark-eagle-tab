@@ -24,7 +24,8 @@
     "dayjs": "^1.11.13",
     "pouchdb-browser": "^9.0.0",
     "pouchdb-find": "^9.0.0",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "nanoid": "^3.1.30"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
