@@ -1,9 +1,7 @@
 <template>
   <div class="container">
     <main>
-      <div class="py-5 text-center">
-        <img class="d-block mx-auto mb-4" src="/icons/tab-vault.png" alt="" width="128px" />
-      </div>
+      <Header :active-id="2" />
       <div class="row g-5">
         <div class="col-md-5 col-lg-4 order-md-last">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -52,9 +50,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/datetime-db';
 import { formatDatetime } from '../utils/base';
+import Header from './components/Header.vue';
 
 export default {
   name: 'Tab',
+  components: { Header },
 
   data() {
     return {

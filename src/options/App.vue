@@ -1,12 +1,7 @@
 <template>
   <div class="container">
     <main>
-      <div class="py-5 text-center">
-        <img class="d-block mx-auto mb-4" src="/icons/icon.png" alt="" width="128px" />
-        <h2>请直视我睿智的眼神</h2>
-        <p class="lead">Please gaze into my wise eye</p>
-      </div>
-
+      <Header :active-id="1" />
       <div class="row g-5">
         <div class="col-md-5 col-lg-4">
           <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -78,6 +73,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/count-db';
 import { containsIgnoreCase, readableTimestamp } from '../utils/base';
+import Header from './components/Header';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -89,7 +85,7 @@ const SORT_MAP = new Map([
 
 export default {
   name: 'App',
-
+  components: { Header },
   data() {
     return {
       // store a cache copy of all tabs grouped by host name
