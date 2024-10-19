@@ -138,6 +138,11 @@ export default {
       if (host === DEFAULT_GROUP_KEY) {
         return '/icons/icon.png';
       }
+
+      const item = this.tabGroupUrlMap.get(host).find(it => it.favIconUrl);
+      if (item && item.favIconUrl) {
+        return item.favIconUrl;
+      }
       return 'https://s2.googleusercontent.com/s2/favicons?domain=' + host;
     },
     deleteNote(url) {

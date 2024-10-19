@@ -20,7 +20,7 @@ chrome.action.onClicked.addListener(tab => {
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
-    title: 'Open Metric Dashboard',
+    title: 'Open Dashboard',
     id: types.OPEN_OPTIONS_PAGE,
     contexts: ['all'],
   });
@@ -70,14 +70,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url?.toLowerCase().startsWith('http')) {
-    processResult(DB.upsertTabByUrl(tab.url, tab.title));
+    processResult(DB.upsertTabByUrl(tab.url, tab.title, tab.favIconUrl));
   }
 });
 
 chrome.tabs.onActivated.addListener(activeInfo => {
   chrome.tabs.get(activeInfo.tabId, tab => {
     if (tab.url?.toLowerCase().startsWith('http')) {
-      processResult(DB.upsertTabByUrl(tab.url, tab.title));
+      processResult(DB.upsertTabByUrl(tab.url, tab.title, tab.favIconUrl));
     }
   });
 });

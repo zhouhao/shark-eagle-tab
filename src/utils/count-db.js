@@ -20,12 +20,13 @@ const processError = (error, reject) => {
   reject(error instanceof Error ? error : new Error(error.toString()));
 };
 
-const createTab = (url, title) => {
+const createTab = (url, title, favIconUrl) => {
   return new Promise((resolve, reject) => {
     const now = getCurrentTimestampInMs();
     const tab = {
       _id: url,
       title,
+      favIconUrl,
       createdAt: now,
       lastViewTime: now,
       count: 1,
@@ -61,13 +62,14 @@ export const fetchAllMyTabs = () => {
 
 // Update tab info by bumping the count and updating the last view time,
 // if title is provided, update the title as well.
-export const upsertTabByUrl = (url, title) => {
+export const upsertTabByUrl = (url, title, favIconUrl) => {
   const id = getSanitizedUrl(url);
   return new Promise((resolve, reject) => {
     db.get(id)
       .then(result => {
         result.count = (result.count || 0) + 1;
         result.title = title || result.title;
+        result.favIconUrl = favIconUrl || result.favIconUrl;
         result.lastViewTime = getCurrentTimestampInMs();
         db.put(result).then(_ => {
           db.get(id).then(doc => resolve(doc));
@@ -76,7 +78,7 @@ export const upsertTabByUrl = (url, title) => {
       .catch(error => {
         if (error.status === 404) {
           // create the tab here
-          createTab(id, title)
+          createTab(id, title, favIconUrl)
             .then(tab => resolve(tab))
             .catch(error => {
               processError(error, reject);
