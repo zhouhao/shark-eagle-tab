@@ -15,5 +15,5 @@
     "service_worker": "background.js"
   },
   "options_page": "options/options.html",
-  "permissions": ["activeTab", "contextMenus", "tabs"]
+  "permissions": ["activeTab", "contextMenus", "tabs", "storage"]
 }
