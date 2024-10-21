@@ -32,11 +32,11 @@ export default {
           name: 'Tab Snapshot',
           link: '/options/tab.html',
         },
-        // {
-        //   id: 3,
-        //   name: 'Settings',
-        //   link: '/options/settings.html',
-        // },
+        {
+          id: 3,
+          name: 'Settings',
+          link: '/options/settings.html',
+        },
       ],
     };
   },

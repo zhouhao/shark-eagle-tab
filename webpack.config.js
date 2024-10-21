@@ -14,6 +14,7 @@ const config = {
     background: './background.js',
     'options/options': './options/options.js',
     'options/tab': './options/tab.js',
+    'options/settings': './options/settings.js',
   },
   output: {
     path: `${__dirname}/dist`,
@@ -77,6 +78,7 @@ const config = {
       { from: 'icons', to: 'icons' },
       { from: 'options/options.html', to: 'options/options.html', transform: transformHtml },
       { from: 'options/tab.html', to: 'options/tab.html', transform: transformHtml },
+      { from: 'options/settings.html', to: 'options/settings.html', transform: transformHtml },
       {
         from: 'manifest.json',
         to: 'manifest.json',

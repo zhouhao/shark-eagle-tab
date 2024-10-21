@@ -35,3 +35,15 @@ export const genId = () => {
 export const containsIgnoreCase = (str, searchStr) => {
   return str.toLowerCase().includes(searchStr.toLowerCase());
 };
+
+export const getSettings = callback => {
+  chrome.storage.local.get(['userSettings'], result => {
+    callback(result.userSettings);
+  });
+};
+
+export const saveSettings = (settings, callback) => {
+  chrome.storage.local.set({ userSettings: settings }, () => {
+    callback && callback();
+  });
+};
