@@ -18,7 +18,6 @@ export const saveSnapshot = tabs => {
       return;
     }
     const now = getCurrentTimestampInMs();
-    console.log('save snapshot = ', JSON.stringify(tabs));
     tabs.forEach(t => {
       const tab = {
         _id: idPrefix + nanoid(),
@@ -38,7 +37,6 @@ export const fetchAllSnapshots = () => {
   return new Promise((resolve, reject) => {
     db.allDocs({ include_docs: true, descending: true })
       .then(doc => {
-        console.log('rows = ', JSON.stringify(doc.rows));
         resolve(
           doc.rows
             .filter(r => r.id.startsWith(idPrefix))
