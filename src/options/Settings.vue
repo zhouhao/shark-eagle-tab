@@ -42,7 +42,7 @@
                 </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" v-model="cleanupSetting" value="0" id="no-clean" checked />
+                <input class="form-check-input" type="radio" v-model="cleanupSetting" value="0" id="no-clean" />
                 <label class="form-check-label" for="no-clean">
                   No Clean Up
                 </label>
