@@ -8,7 +8,7 @@
             <span class="text-primary">Tab Group</span>
             <span class="badge bg-primary rounded-pill">{{ tabGroupUrlMap.size }}</span>
           </h4>
-          <div class="list-group list-group-flush border-bottom scrollarea">
+          <div class="list-group border-bottom scrollarea">
             <a
               v-for="group in getSortedGroups()"
               :key="group"

@@ -7,7 +7,7 @@
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-primary">Snapshot</span>
           </h4>
-          <div class="list-group list-group-flush border-bottom scrollarea">
+          <div class="list-group border-bottom scrollarea">
             <a
               v-for="group in getSortedGroups()"
               :key="group"
