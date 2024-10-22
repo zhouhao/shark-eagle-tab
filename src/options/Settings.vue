@@ -69,6 +69,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Header from './components/Header.vue';
 import * as Store from '../utils/setting';
+import 'toastify-js/src/toastify.css';
+import { toastSuccess } from '../utils/base';
 
 export default {
   name: 'Settings',
@@ -89,6 +91,7 @@ export default {
     },
     updateCleanupConfig() {
       Store.set(Store.CLEANUP_DAYS_KEY, parseInt(this.cleanupSetting));
+      toastSuccess('Saved Successfully');
     },
     getSettingItems() {
       return [

@@ -1,5 +1,6 @@
 import * as dayjs from 'dayjs';
 import * as relativeTime from 'dayjs/plugin/relativeTime';
+import Toastify from 'toastify-js';
 
 dayjs.extend(relativeTime);
 
@@ -48,4 +49,24 @@ const convertToInt = value => {
 export const is1HourAgo = ts => {
   if (!ts) return true;
   return getCurrentTimestampInMs() - convertToInt(ts) > MS_OF_HOUR;
+};
+
+export const toastSuccess = (message, duration = 3000) => {
+  Toastify({
+    text: message,
+    duration: duration,
+    style: {
+      background: 'rgb(25, 135, 84)',
+    },
+  }).showToast();
+};
+
+export const toastError = (message, duration = 3000) => {
+  Toastify({
+    text: message,
+    duration: duration,
+    style: {
+      background: 'rgb(190, 46, 60)',
+    },
+  }).showToast();
 };
