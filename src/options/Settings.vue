@@ -68,7 +68,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Header from './components/Header.vue';
-import { getSettings, saveSettings } from '../utils/base';
+import * as Store from '../utils/setting';
 
 export default {
   name: 'Settings',
@@ -85,16 +85,10 @@ export default {
   },
   methods: {
     init() {
-      getSettings(settings => {
-        this.cleanupSetting = (settings && settings.cleanupSetting) || 0;
-      });
+      this.cleanupSetting = Store.get(Store.CLEANUP_DAYS_KEY) || 0;
     },
     updateCleanupConfig() {
-      getSettings(result => {
-        const settings = result || {};
-        settings.cleanupSetting = this.cleanupSetting;
-        saveSettings(settings);
-      });
+      Store.set(Store.CLEANUP_DAYS_KEY, this.cleanupSetting);
     },
     getSettingItems() {
       return [
