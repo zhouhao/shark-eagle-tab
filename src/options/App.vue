@@ -72,8 +72,10 @@ import { getUrlHostname } from '../utils/urls';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/count-db';
-import { containsIgnoreCase, readableTimestamp } from '../utils/base';
+import { containsIgnoreCase, getCurrentTimestampInMs, is1HourAgo, MS_OF_DAY, readableTimestamp } from '../utils/base';
 import Header from './components/Header';
+import * as Store from '../utils/setting';
+import { cleanOldTabs } from '../utils/count-db';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -106,6 +108,15 @@ export default {
       const localTabGroupViewCountMap = new Map();
       localTabGroupUrlMap.set(DEFAULT_GROUP_KEY, []);
       localTabGroupViewCountMap.set(DEFAULT_GROUP_KEY, 0);
+
+      const cleanupDays = Store.get(Store.CLEANUP_DAYS_KEY);
+      if (is1HourAgo(Store.get(Store.LAST_CLEANUP_TIME_KEY)) && cleanupDays && cleanupDays > 0) {
+        const ts = getCurrentTimestampInMs() - cleanupDays * MS_OF_DAY;
+        cleanOldTabs(ts).then(() => {
+          // TODO: may fire some notification to user
+          Store.set(Store.LAST_CLEANUP_TIME_KEY, getCurrentTimestampInMs());
+        });
+      }
 
       const self = this;
       DB.fetchAllMyTabs().then(tabs => {
