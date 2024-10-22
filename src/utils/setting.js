@@ -10,3 +10,7 @@ export const set = (key, value) => {
 export const get = key => {
   return store.get(key);
 };
+
+export const getOrDefault = (key, defaultValue) => {
+  return store.get(key) || defaultValue;
+};

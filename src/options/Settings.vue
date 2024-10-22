@@ -88,7 +88,7 @@ export default {
       this.cleanupSetting = Store.get(Store.CLEANUP_DAYS_KEY) || 0;
     },
     updateCleanupConfig() {
-      Store.set(Store.CLEANUP_DAYS_KEY, this.cleanupSetting);
+      Store.set(Store.CLEANUP_DAYS_KEY, parseInt(this.cleanupSetting));
     },
     getSettingItems() {
       return [
