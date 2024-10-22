@@ -22,10 +22,11 @@
   "dependencies": {
     "bootstrap": "^5.3.0",
     "dayjs": "^1.11.13",
+    "nanoid": "^3.1.30",
     "pouchdb-browser": "^9.0.0",
     "pouchdb-find": "^9.0.0",
-    "vue": "^2.6.10",
-    "nanoid": "^3.1.30"
+    "store": "^2.0.12",
+    "vue": "^2.6.10"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
