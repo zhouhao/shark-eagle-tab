@@ -3,7 +3,8 @@ import * as relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-export const MS_OF_DAY = 24 * 60 * 60 * 1000;
+export const MS_OF_HOUR = 60 * 60 * 1000;
+export const MS_OF_DAY = 24 * MS_OF_HOUR;
 
 export const addZero = value => ('0' + value).slice(-2);
 
@@ -46,5 +47,5 @@ const convertToInt = value => {
 
 export const is1HourAgo = ts => {
   if (!ts) return true;
-  return getCurrentTimestampInMs() - convertToInt(ts) > 3600000;
+  return getCurrentTimestampInMs() - convertToInt(ts) > MS_OF_HOUR;
 };
