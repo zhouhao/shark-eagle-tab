@@ -44,7 +44,7 @@ const createTab = (url, title, favIconUrl) => {
 
 export const fetchAllMyTabs = () => {
   return new Promise((resolve, reject) => {
-    db.allDocs({ include_docs: true, descending: true })
+    db.allDocs({ include_docs: true })
       .then(doc => {
         resolve(
           doc.rows
@@ -104,4 +104,34 @@ export const deleteTab = url => {
         processError(error, reject);
       });
   });
+};
+
+export const cleanOldTabs = ts => {
+  return fetchAllMyTabs()
+    .then(docs => {
+      const docsToDelete = docs
+        .filter(d => d.lastViewTime < ts)
+        .map(d => ({
+          _id: d._id,
+          _rev: d._rev,
+          _deleted: true,
+        }));
+
+      // Perform the bulk delete operation
+      if (docsToDelete.length > 0) {
+        return db.bulkDocs(docsToDelete);
+      } else {
+        return Promise.resolve('No tabs to clean');
+      }
+    })
+    .then(result => {
+      if (Array.isArray(result)) {
+        console.log(`Cleaned ${result.length} tabs`);
+      } else {
+        console.log(result);
+      }
+    })
+    .catch(error => {
+      console.error('Error cleaning tabs:', error);
+    });
 };

@@ -3,6 +3,8 @@ import * as relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
+export const MS_OF_DAY = 24 * 60 * 60 * 1000;
+
 export const addZero = value => ('0' + value).slice(-2);
 
 export const formatDate = value => {
@@ -35,15 +37,14 @@ export const genId = () => {
 export const containsIgnoreCase = (str, searchStr) => {
   return str.toLowerCase().includes(searchStr.toLowerCase());
 };
-
-export const getSettings = callback => {
-  chrome.storage.local.get(['userSettings'], result => {
-    callback(result.userSettings);
-  });
+const convertToInt = value => {
+  if (typeof value === 'string') {
+    return parseInt(value, 10);
+  }
+  return value;
 };
 
-export const saveSettings = (settings, callback) => {
-  chrome.storage.local.set({ userSettings: settings }, () => {
-    callback && callback();
-  });
+export const is1HourAgo = ts => {
+  if (!ts) return true;
+  return getCurrentTimestampInMs() - convertToInt(ts) > 3600000;
 };
