@@ -76,6 +76,7 @@ import { containsIgnoreCase, getCurrentTimestampInMs, is1HourAgo, MS_OF_DAY, rea
 import Header from './components/Header';
 import * as Store from '../utils/setting';
 import { cleanOldTabs } from '../utils/count-db';
+import 'toastify-js/src/toastify.css';
 
 const DEFAULT_GROUP_KEY = 'all';
 const SORT_BY_COUNT = (tab1, tab2) => tab2.count - tab1.count;
@@ -113,7 +114,6 @@ export default {
       if (is1HourAgo(Store.get(Store.LAST_CLEANUP_TIME_KEY)) && cleanupDays && cleanupDays > 0) {
         const ts = getCurrentTimestampInMs() - cleanupDays * MS_OF_DAY;
         cleanOldTabs(ts).then(() => {
-          // TODO: may fire some notification to user
           Store.set(Store.LAST_CLEANUP_TIME_KEY, getCurrentTimestampInMs());
         });
       }

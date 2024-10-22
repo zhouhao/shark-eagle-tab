@@ -1,6 +1,6 @@
 import PouchDB from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
-import { getCurrentTimestampInMs } from './base';
+import { getCurrentTimestampInMs, toastError, toastSuccess } from './base';
 import { getSanitizedUrl } from './urls';
 
 PouchDB.plugin(PouchDBFind);
@@ -127,11 +127,13 @@ export const cleanOldTabs = ts => {
     .then(result => {
       if (Array.isArray(result)) {
         console.log(`Cleaned ${result.length} tabs`);
+        toastSuccess(`Cleaned ${result.length} outdated tabs`);
       } else {
         console.log(result);
       }
     })
     .catch(error => {
       console.error('Error cleaning tabs:', error);
+      toastError('Error cleaning tabs:' + error.toString());
     });
 };
