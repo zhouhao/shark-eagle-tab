@@ -73,7 +73,6 @@ export default {
 
       const self = this;
       DB.fetchAllSnapshots().then(tabs => {
-        console.log('Tabs = ', JSON.stringify(tabs));
         tabs.forEach(tab => {
           const group = tab.createdAt;
           self.snapshotKey = Math.max(group, self.snapshotKey);
