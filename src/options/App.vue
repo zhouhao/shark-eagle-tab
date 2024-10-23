@@ -24,7 +24,7 @@
                 <small><img :src="getImgSrc(group)" alt="favicon" width="20px"/></small>
               </div>
               <div class="col-10 mb-1 small">
-                Url Count: {{ tabGroupUrlMap.get(group).length }} / Total View Count:
+                Tab: {{ tabGroupUrlMap.get(group).length }} / View:
                 {{ tabGroupViewCountMap.get(group) }}
               </div>
             </a>
