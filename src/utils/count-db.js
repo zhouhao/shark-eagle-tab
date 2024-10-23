@@ -1,6 +1,6 @@
 import PouchDB from 'pouchdb-browser';
 import PouchDBFind from 'pouchdb-find';
-import { getCurrentTimestampInMs, toastError, toastSuccess } from './base';
+import { getCurrentTimestampInMs, toastError, toastSuccess, toastWarn } from './base';
 import { getSanitizedUrl } from './urls';
 
 PouchDB.plugin(PouchDBFind);
@@ -130,6 +130,38 @@ export const cleanOldTabs = ts => {
         toastSuccess(`Cleaned ${result.length} outdated tabs`);
       } else {
         console.log(result);
+      }
+    })
+    .catch(error => {
+      console.error('Error cleaning tabs:', error);
+      toastError('Error cleaning tabs:' + error.toString());
+    });
+};
+
+export const cleanTabs = lambda => {
+  return fetchAllMyTabs()
+    .then(docs => {
+      const docsToDelete = docs
+        .filter(d => lambda(d))
+        .map(d => ({
+          _id: d._id,
+          _rev: d._rev,
+          _deleted: true,
+        }));
+
+      // Perform the bulk delete operation
+      if (docsToDelete.length > 0) {
+        return db.bulkDocs(docsToDelete);
+      } else {
+        return Promise.resolve('No tabs to clean');
+      }
+    })
+    .then(result => {
+      if (Array.isArray(result)) {
+        console.log(`Cleaned ${result.length} tabs`);
+        toastSuccess(`Cleaned ${result.length} tabs`);
+      } else {
+        toastWarn(result);
       }
     })
     .catch(error => {

@@ -27,7 +27,8 @@
     "pouchdb-find": "^9.0.0",
     "store": "^2.0.12",
     "toastify-js": "^1.12.0",
-    "vue": "^2.6.10"
+    "vue": "^2.6.10",
+    "vue-simple-context-menu": "^3.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",

@@ -16,10 +16,11 @@
               class="list-group-item list-group-item-action py-3 lh-sm"
               :class="{ active: group === currentGroup }"
               aria-current="true"
+              @contextmenu.prevent.stop="handleClick($event, group)"
               @click="updateGroup(group)"
             >
               <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1">{{ group }}</strong>
+                <strong class="mb-1">{{ normalizeGroupName(group) }}</strong>
                 <small><img :src="getImgSrc(group)" alt="favicon" width="20px"/></small>
               </div>
               <div class="col-10 mb-1 small">
@@ -64,18 +65,19 @@
         </div>
       </div>
     </main>
+    <vue-simple-context-menu :elementId="'myContextMenu'" :options="options" :ref="'vueSimpleContextMenu'" @option-clicked="optionClicked" />
   </div>
 </template>
 
 <script>
-import { getUrlHostname } from '../utils/urls';
+import { getUrlHostname, getUrlOrigin } from '../utils/urls';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/count-db';
 import { containsIgnoreCase, getCurrentTimestampInMs, is1HourAgo, MS_OF_DAY, readableTimestamp } from '../utils/base';
 import Header from './components/Header';
 import * as Store from '../utils/setting';
-import { cleanOldTabs } from '../utils/count-db';
+import { cleanOldTabs, cleanTabs } from '../utils/count-db';
 import 'toastify-js/src/toastify.css';
 
 const DEFAULT_GROUP_KEY = 'all';
@@ -98,12 +100,39 @@ export default {
       currentGroup: DEFAULT_GROUP_KEY,
       sortMap: SORT_MAP,
       currentTabList: [],
+      options: [
+        {
+          name: 'Delete',
+          class: 'delete-menu',
+        },
+      ],
     };
   },
   mounted() {
     this.loadTabData();
   },
   methods: {
+    normalizeGroupName(group) {
+      if (group === DEFAULT_GROUP_KEY) {
+        return DEFAULT_GROUP_KEY;
+      }
+      return getUrlHostname(group);
+    },
+    handleClick(event, item) {
+      if (item !== DEFAULT_GROUP_KEY) {
+        this.$refs.vueSimpleContextMenu.showMenu(event, item);
+      }
+    },
+    optionClicked(event) {
+      const urlPrefix = event.item;
+      if (urlPrefix && urlPrefix.startsWith('http') && confirm('Are you sure to delete this group?')) {
+        cleanTabs(tab => {
+          return tab._id.startsWith(urlPrefix);
+        }).then(_ => {
+          this.loadTabData();
+        });
+      }
+    },
     loadTabData() {
       const localTabGroupUrlMap = new Map();
       const localTabGroupViewCountMap = new Map();
@@ -123,7 +152,7 @@ export default {
         tabs.forEach(tab => {
           const count = tab.count;
           const url = tab._id;
-          const host = getUrlHostname(url);
+          const host = getUrlOrigin(url);
           if (!localTabGroupUrlMap.has(host)) {
             localTabGroupUrlMap.set(host, []);
             localTabGroupViewCountMap.set(host, 0);

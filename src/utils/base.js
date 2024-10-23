@@ -61,6 +61,16 @@ export const toastSuccess = (message, duration = 3000) => {
   }).showToast();
 };
 
+export const toastWarn = (message, duration = 3000) => {
+  Toastify({
+    text: message,
+    duration: duration,
+    style: {
+      background: 'rgb(255, 193, 7)',
+    },
+  }).showToast();
+};
+
 export const toastError = (message, duration = 3000) => {
   Toastify({
     text: message,
