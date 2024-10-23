@@ -34,7 +34,7 @@
                 <li class="list-group-item tab-entry" v-for="tab in currentList" :key="tab._id">
                   <img :src="getImgSrc(tab)" alt="favicon" width="16" />
                   <a :href="tab.url" target="_blank" :title="tab.title"> {{ truncateString(tab.title) }}</a>
-                  <button type="button" class="btn-close float-end delete-btn" aria-label="Close" @click="deleteById(tab._id)"></button>
+                  <button type="button" class="btn-close float-end delete-btn" aria-label="Close" @click.prevent.stop="deleteById(tab._id)"></button>
                 </li>
               </ol>
             </div>

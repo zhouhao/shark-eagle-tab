@@ -56,7 +56,7 @@
                     ><span class="badge text-bg-secondary" title="View Count">{{ tab.count }}</span>
                     <span class="badge text-bg-light" title="Last Viewed Time">{{ formatTime(tab.lastViewTime) }}</span>
                   </small>
-                  <button type="button" class="btn-close float-end delete-btn" aria-label="Close" @click="deleteNote(tab._id)"></button>
+                  <button type="button" class="btn-close float-end delete-btn" aria-label="Close" @click.prevent.stop="deleteById(tab._id)"></button>
                 </li>
               </ol>
             </div>
@@ -156,7 +156,7 @@ export default {
       }
       return 'https://s2.googleusercontent.com/s2/favicons?domain=' + host;
     },
-    deleteNote(url) {
+    deleteById(url) {
       if (confirm('Are you sure to delete this?')) {
         DB.deleteTab(url)
           .then(res => {
