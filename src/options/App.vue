@@ -124,10 +124,14 @@ export default {
       }
     },
     optionClicked(event) {
-      const urlPrefix = event.item;
-      if (urlPrefix && urlPrefix.startsWith('http') && confirm('Are you sure to delete this group?')) {
+      const group = event.item;
+      const idSet = new Set();
+      this.tabGroupUrlMap.get(group).forEach(tab => {
+        idSet.add(tab._id);
+      });
+      if (group && confirm('Are you sure to delete this group?')) {
         cleanTabs(tab => {
-          return tab._id.startsWith(urlPrefix);
+          return idSet.has(tab._id);
         }).then(_ => {
           this.loadTabData();
         });
