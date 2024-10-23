@@ -85,6 +85,9 @@ const config = {
         transform: content => {
           const jsonContent = JSON.parse(content);
           jsonContent.version = version;
+          if (process.env.RELEASE !== 'true') {
+            jsonContent.name = jsonContent.name + ' [DEV]';
+          }
           return JSON.stringify(jsonContent, null, 2);
         },
       },
