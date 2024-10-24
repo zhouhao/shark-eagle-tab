@@ -143,6 +143,11 @@ export default {
       localTabGroupUrlMap.set(DEFAULT_GROUP_KEY, []);
       localTabGroupViewCountMap.set(DEFAULT_GROUP_KEY, 0);
 
+      // set default expired time for tabs as 7 days
+      if (Store.get(Store.CLEANUP_DAYS_KEY) === undefined) {
+        Store.set(Store.CLEANUP_DAYS_KEY, 7);
+      }
+
       const cleanupDays = parseInt(Store.getOrDefault(Store.CLEANUP_DAYS_KEY, 0));
       if (is1HourAgo(Store.get(Store.LAST_CLEANUP_TIME_KEY)) && cleanupDays && cleanupDays > 0) {
         const ts = getCurrentTimestampInMs() - cleanupDays * MS_OF_DAY;
