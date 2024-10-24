@@ -50,6 +50,32 @@
               <button type="button" class="btn btn-primary float-end" @click="updateCleanupConfig()">Save</button>
             </div>
           </div>
+          <div class="card" id="max-snapshot-count">
+            <h5 class="card-header">
+              2. Max Snapshot Count
+            </h5>
+            <div class="card-body">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" v-model="maxSnapshotCount" value="25" id="count-25" />
+                <label class="form-check-label" for="count-25">
+                  25
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" v-model="maxSnapshotCount" value="50" id="count-50" />
+                <label class="form-check-label" for="count-50">
+                  50
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" v-model="maxSnapshotCount" value="100" id="count-100" />
+                <label class="form-check-label" for="count-100">
+                  100
+                </label>
+              </div>
+              <button type="button" class="btn btn-primary float-end" @click="updateMaxSnapshotCount()">Save</button>
+            </div>
+          </div>
           <div class="card" id="more-coming-soon">
             <h5 class="card-header">
               More coming soon...
@@ -80,6 +106,7 @@ export default {
     return {
       selectedSettingId: 1,
       cleanupSetting: 0,
+      maxSnapshotCount: 100,
     };
   },
   mounted() {
@@ -87,7 +114,8 @@ export default {
   },
   methods: {
     init() {
-      this.cleanupSetting = Store.get(Store.CLEANUP_DAYS_KEY) || 0;
+      this.cleanupSetting = Store.get(Store.CLEANUP_DAYS_KEY) || 7;
+      this.maxSnapshotCount = Store.get(Store.MAX_SNAPSHOT_COUNT_KEY) || 100;
     },
     updateCleanupConfig() {
       Store.set(Store.CLEANUP_DAYS_KEY, parseInt(this.cleanupSetting));
@@ -101,8 +129,13 @@ export default {
           href: '#clean-up',
         },
         {
+          id: 2,
+          name: 'Max Snapshot Count',
+          href: '#max-snapshot-count',
+        },
+        {
           id: 100,
-          name: 'More coming soon',
+          name: 'More coming soon...',
           href: '#more-coming-soon',
         },
       ];
@@ -110,6 +143,10 @@ export default {
 
     updateSettingId(group) {
       this.selectedSettingId = group;
+    },
+    updateMaxSnapshotCount() {
+      Store.set(Store.MAX_SNAPSHOT_COUNT_KEY, parseInt(this.maxSnapshotCount));
+      toastSuccess('Saved Successfully');
     },
   },
 };
