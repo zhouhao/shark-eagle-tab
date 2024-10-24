@@ -18,7 +18,7 @@
               @click="updateGroup(group)"
             >
               <div class="d-flex w-100 align-items-center justify-content-between">
-                <strong class="mb-1">{{ new Date(snapshotKey).toLocaleString() }}</strong>
+                <strong class="mb-1">{{ new Date(group).toLocaleString() }}</strong>
                 <small>{{ snapshotMap.get(group).length }}</small>
               </div>
             </a>
