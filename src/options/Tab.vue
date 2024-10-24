@@ -51,6 +51,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import * as DB from '../utils/datetime-db';
 import { formatDatetime } from '../utils/base';
 import Header from './components/Header.vue';
+import * as Store from '../utils/setting';
+import { MAX_SNAPSHOT_COUNT_KEY } from '../utils/setting';
 
 export default {
   name: 'Tab',
@@ -62,6 +64,7 @@ export default {
       snapshotMap: new Map(),
       snapshotKey: 0,
       currentList: [],
+      snapshot2Cleanup: [],
     };
   },
   mounted() {
@@ -87,7 +90,9 @@ export default {
     },
     getSortedGroups() {
       const groups = this.snapshotMap.keys();
-      return Array.from(groups).sort((a, b) => b - a);
+      const sortedGroup = Array.from(groups).sort((a, b) => b - a);
+      this.snapshot2Cleanup = sortedGroup.slice(Store.getOrDefault(MAX_SNAPSHOT_COUNT_KEY, 100));
+      return sortedGroup;
     },
     getImgSrc(tab) {
       if (!tab.favIconUrl) {
