@@ -23,5 +23,8 @@ export const get = key => {
 };
 
 export const getOrDefault = (key, defaultValue) => {
-  return store.get(key) || defaultValue;
+  if (store.get(key) === undefined) {
+    return defaultValue;
+  }
+  return store.get(key);
 };

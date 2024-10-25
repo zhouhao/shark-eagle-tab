@@ -114,8 +114,8 @@ export default {
   },
   methods: {
     init() {
-      this.cleanupSetting = Store.get(Store.CLEANUP_DAYS_KEY) || 7;
-      this.maxSnapshotCount = Store.get(Store.MAX_SNAPSHOT_COUNT_KEY) || 100;
+      this.cleanupSetting = Store.getOrDefault(Store.CLEANUP_DAYS_KEY, 7);
+      this.maxSnapshotCount = Store.getOrDefault(Store.MAX_SNAPSHOT_COUNT_KEY, 100);
     },
     updateCleanupConfig() {
       Store.set(Store.CLEANUP_DAYS_KEY, parseInt(this.cleanupSetting));
