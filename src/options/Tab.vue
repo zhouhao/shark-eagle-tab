@@ -53,6 +53,8 @@ import { formatDatetime } from '../utils/base';
 import Header from './components/Header.vue';
 import * as Store from '../utils/setting';
 import { MAX_SNAPSHOT_COUNT_KEY } from '../utils/setting';
+import { cleanTabs } from '../utils/datetime-db';
+import 'toastify-js/src/toastify.css';
 
 export default {
   name: 'Tab',
@@ -64,7 +66,6 @@ export default {
       snapshotMap: new Map(),
       snapshotKey: 0,
       currentList: [],
-      snapshot2Cleanup: [],
     };
   },
   mounted() {
@@ -91,7 +92,15 @@ export default {
     getSortedGroups() {
       const groups = this.snapshotMap.keys();
       const sortedGroup = Array.from(groups).sort((a, b) => b - a);
-      this.snapshot2Cleanup = sortedGroup.slice(Store.getOrDefault(MAX_SNAPSHOT_COUNT_KEY, 100));
+      const limit = Store.getOrDefault(MAX_SNAPSHOT_COUNT_KEY, 100);
+      if (sortedGroup && sortedGroup.length > limit) {
+        const snapshot2Cleanup = new Set(sortedGroup.slice(limit));
+        cleanTabs(tab => {
+          return snapshot2Cleanup.has(tab.createdAt);
+        });
+        return sortedGroup.slice(0, limit);
+      }
+
       return sortedGroup;
     },
     getImgSrc(tab) {
