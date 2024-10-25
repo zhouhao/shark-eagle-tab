@@ -1,6 +1,6 @@
 {
   "name": "shark-eagle-tab",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A simple yet powerful tab management toolkit",
   "author": "Hao Zhou <royhzhou@gmail.com>",
   "engines": {
