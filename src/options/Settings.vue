@@ -76,12 +76,24 @@
               <button type="button" class="btn btn-primary float-end" @click="updateMaxSnapshotCount()">Save</button>
             </div>
           </div>
-          <div class="card" id="more-coming-soon">
+          <div class="card" id="import-and-export">
             <h5 class="card-header">
-              More coming soon...
+              Import & Export
             </h5>
             <div class="card-body">
-              More settings will be added soon...
+              <div class="mb-3">
+                <input class="form-control" type="file" ref="jsonFile" @change="handleFileChange" accept=".json" />
+              </div>
+              <button class="btn btn-primary" @click="parseJson" :disabled="!fileSelected">Import</button>
+
+              <button class="btn btn-success float-end" @click="exportJson">Export</button>
+
+              <div class="mt-4">
+                <h5>Result:</h5>
+                <pre ref="result" class="bg-light p-3 rounded" :class="resultClass" style="max-height: 400px; overflow-y: auto;">
+ {{ resultText }}
+                </pre>
+              </div>
             </div>
           </div>
         </div>
@@ -107,6 +119,9 @@ export default {
       selectedSettingId: 1,
       cleanupSetting: 0,
       maxSnapshotCount: 100,
+      fileSelected: false,
+      resultText: 'No file parsed yet',
+      resultClass: '',
     };
   },
   mounted() {
@@ -134,9 +149,9 @@ export default {
           href: '#max-snapshot-count',
         },
         {
-          id: 100,
-          name: 'More coming soon...',
-          href: '#more-coming-soon',
+          id: 3,
+          name: 'Import & Export',
+          href: '#import-and-export',
         },
       ];
     },
@@ -148,6 +163,45 @@ export default {
       Store.set(Store.MAX_SNAPSHOT_COUNT_KEY, parseInt(this.maxSnapshotCount));
       toastSuccess('Saved Successfully');
     },
+    handleFileChange(event) {
+      this.fileSelected = event.target.files.length > 0;
+    },
+    parseJson() {
+      const file = this.$refs.jsonFile.files[0];
+      if (!file) {
+        this.showError('Please select a file first.');
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        try {
+          // Parse JSON content
+          const jsonContent = JSON.parse(e.target.result);
+
+          // Display formatted JSON
+          this.resultText = JSON.stringify(jsonContent, null, 2);
+
+          // Add success styling
+          this.resultClass = 'text-success';
+        } catch (error) {
+          this.showError('Invalid JSON file: ' + error.message);
+        }
+      };
+
+      reader.onerror = () => {
+        this.showError('Error reading file');
+      };
+
+      // Read the file as text
+      reader.readAsText(file);
+    },
+    showError(message) {
+      this.resultText = message;
+      this.resultClass = 'text-danger';
+    },
+    exportJson() {},
   },
 };
 </script>
