@@ -80,3 +80,25 @@ export const toastError = (message, duration = 3000) => {
     },
   }).showToast();
 };
+
+export const downloadJSON = (data, filename = 'data.json') => {
+  // Convert data to JSON string
+  const jsonString = JSON.stringify(data, null, 2);
+
+  // Create blob
+  const blob = new Blob([jsonString], { type: 'application/json' });
+
+  // Create download link
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+
+  // Cleanup
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
