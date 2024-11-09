@@ -62,12 +62,12 @@ export const fetchAllMyTabs = () => {
 
 // Update tab info by bumping the count and updating the last view time,
 // if title is provided, update the title as well.
-export const upsertTabByUrl = (url, title, favIconUrl) => {
+export const upsertTabByUrl = (url, title, favIconUrl, count = 1) => {
   const id = getSanitizedUrl(url);
   return new Promise((resolve, reject) => {
     db.get(id)
       .then(result => {
-        result.count = (result.count || 0) + 1;
+        result.count = (result.count || 0) + count;
         result.title = title || result.title;
         result.favIconUrl = favIconUrl || result.favIconUrl;
         result.lastViewTime = getCurrentTimestampInMs();
