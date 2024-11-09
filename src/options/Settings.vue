@@ -108,7 +108,9 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Header from './components/Header.vue';
 import * as Store from '../utils/setting';
 import 'toastify-js/src/toastify.css';
-import { toastSuccess } from '../utils/base';
+import { downloadJSON, getCurrentTimestampInMs, toastSuccess } from '../utils/base';
+import { fetchAllSnapshots } from '../utils/datetime-db';
+import { fetchAllMyTabs } from '../utils/count-db';
 
 export default {
   name: 'Settings',
@@ -201,7 +203,18 @@ export default {
       this.resultText = message;
       this.resultClass = 'text-danger';
     },
-    exportJson() {},
+    async exportJson() {
+      const result = {};
+      result.snapshots = await fetchAllSnapshots();
+      result.tabs = await fetchAllMyTabs();
+      result.settings = {
+        cleanupSetting: Store.getOrDefault(Store.CLEANUP_DAYS_KEY, 7),
+        maxSnapshotCount: Store.getOrDefault(Store.MAX_SNAPSHOT_COUNT_KEY, 100),
+      };
+      console.log(JSON.stringify(result));
+      downloadJSON(result, 'shark-eagle-tab-' + getCurrentTimestampInMs() + '.json');
+      toastSuccess('You data has been exported successfully');
+    },
   },
 };
 </script>
