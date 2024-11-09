@@ -90,9 +90,7 @@
 
               <div class="mt-4">
                 <h5>Result:</h5>
-                <pre ref="result" class="bg-light p-3 rounded" :class="resultClass" style="max-height: 400px; overflow-y: auto;">
- {{ resultText }}
-                </pre>
+                <pre ref="result" class="bg-light p-3 rounded" :class="resultClass" style="max-height: 400px; overflow-y: auto;"> {{ resultText }} </pre>
               </div>
             </div>
           </div>
@@ -179,24 +177,16 @@ export default {
 
       reader.onload = e => {
         try {
-          // Parse JSON content
           const jsonContent = JSON.parse(e.target.result);
-
-          // Display formatted JSON
           this.resultText = JSON.stringify(jsonContent, null, 2);
-
-          // Add success styling
           this.resultClass = 'text-success';
         } catch (error) {
           this.showError('Invalid JSON file: ' + error.message);
         }
       };
-
       reader.onerror = () => {
         this.showError('Error reading file');
       };
-
-      // Read the file as text
       reader.readAsText(file);
     },
     showError(message) {
@@ -211,7 +201,6 @@ export default {
         cleanupSetting: Store.getOrDefault(Store.CLEANUP_DAYS_KEY, 7),
         maxSnapshotCount: Store.getOrDefault(Store.MAX_SNAPSHOT_COUNT_KEY, 100),
       };
-      console.log(JSON.stringify(result));
       downloadJSON(result, 'shark-eagle-tab-' + getCurrentTimestampInMs() + '.json');
       toastSuccess('You data has been exported successfully');
     },
