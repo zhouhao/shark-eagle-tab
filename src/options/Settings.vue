@@ -107,8 +107,8 @@ import Header from './components/Header.vue';
 import * as Store from '../utils/setting';
 import 'toastify-js/src/toastify.css';
 import { downloadJSON, getCurrentTimestampInMs, toastSuccess } from '../utils/base';
-import { fetchAllSnapshots } from '../utils/datetime-db';
-import { fetchAllMyTabs } from '../utils/count-db';
+import { fetchAllSnapshots, saveSnapshot } from '../utils/datetime-db';
+import { fetchAllMyTabs, upsertTabByUrl } from '../utils/count-db';
 
 export default {
   name: 'Settings',
@@ -172,14 +172,29 @@ export default {
         this.showError('Please select a file first.');
         return;
       }
-
       const reader = new FileReader();
-
       reader.onload = e => {
         try {
           const jsonContent = JSON.parse(e.target.result);
           this.resultText = JSON.stringify(jsonContent, null, 2);
           this.resultClass = 'text-success';
+          if (!jsonContent.snapshots && !jsonContent.tabs && !jsonContent.settings) {
+            this.showError('Invalid JSON file: No snapshots, tabs or settings found');
+            return;
+          }
+          if (jsonContent.tabs) {
+            jsonContent.tabs.forEach(tab => {
+              upsertTabByUrl(tab._id, tab.title, tab.favIconUrl, tab.count);
+            });
+          }
+          if (jsonContent.snapshots) {
+            saveSnapshot(jsonContent.snapshots);
+          }
+          if (jsonContent.settings) {
+            jsonContent.settings.cleanupSetting && Store.set(Store.CLEANUP_DAYS_KEY, jsonContent.settings.cleanupSetting);
+            jsonContent.settings.maxSnapshotCount && Store.set(Store.MAX_SNAPSHOT_COUNT_KEY, jsonContent.settings.maxSnapshotCount);
+          }
+          toastSuccess('You data has been imported successfully');
         } catch (error) {
           this.showError('Invalid JSON file: ' + error.message);
         }
