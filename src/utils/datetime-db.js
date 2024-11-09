@@ -24,7 +24,7 @@ export const saveSnapshot = tabs => {
         url: t.url,
         favIconUrl: t.favIconUrl,
         title: t.title,
-        createdAt: now,
+        createdAt: t.createdAt || now,
       };
       db.put(tab).then(_ => {
         resolve();
